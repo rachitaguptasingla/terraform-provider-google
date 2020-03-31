@@ -46,7 +46,15 @@ To get more information about FlexibleAppVersion, see:
 
 
 ```hcl
+resource "google_project" "my_project" {
+  name = "appeng-flex"
+  project_id = "appeng-flex"
+  org_id = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+}
+
 resource "google_project_service" "service" {
+  project = google_project.my_project.id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
@@ -54,6 +62,7 @@ resource "google_project_service" "service" {
 
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
+  project    = google_project.my_project.id
   service    = "service-"
   runtime    = "nodejs"
 
@@ -90,6 +99,7 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
+  project = google_project.my_project.id
   name = "appengine-static-content"
 }
 

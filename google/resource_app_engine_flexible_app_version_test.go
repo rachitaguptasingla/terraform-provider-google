@@ -10,7 +10,11 @@ import (
 func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 	t.Parallel()
 
-	resourceName := fmt.Sprintf("tf-test-ae-service-%s", acctest.RandString(10))
+	context := map[string]interface{}{
+		"org_id":          getTestOrgFromEnv(t),
+		"billing_account": getTestBillingAccountFromEnv(t),
+		"service_name":    fmt.Sprintf("tf-test-ae-service-%s", acctest.RandString(10)),
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,7 +22,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 		CheckDestroy: testAccCheckAppEngineFlexibleAppVersionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppEngineFlexibleAppVersion_python(resourceName),
+				Config: testAccAppEngineFlexibleAppVersion_python(context),
 			},
 			{
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
@@ -27,7 +31,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
 			},
 			{
-				Config: testAccAppEngineFlexibleAppVersion_pythonUpdate(resourceName),
+				Config: testAccAppEngineFlexibleAppVersion_pythonUpdate(context),
 			},
 			{
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
@@ -39,8 +43,15 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 	})
 }
 
-func testAccAppEngineFlexibleAppVersion_python(resourceName string) string {
-	return fmt.Sprintf(`
+func testAccAppEngineFlexibleAppVersion_python(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "my_project" {
+  name = "tf-test-appeng-flex%{random_suffix}"
+  project_id = "tf-test-appeng-flex%{random_suffix}"
+  org_id = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
 resource "google_project_service" "project" {
   service = "appengineflex.googleapis.com"
 
@@ -49,66 +60,66 @@ resource "google_project_service" "project" {
 
 resource "google_app_engine_flexible_app_version" "foo" {
   version_id = "v1"
-  service    = "%s"
+  service    = "%{service}"
   runtime    = "python"
 
   runtime_api_version = "1"
 
   resources {
-    cpu       = 1
-    memory_gb = 0.5
-    disk_gb   = 10
+	cpu       = 1
+	memory_gb = 0.5
+	disk_gb   = 10
   }
 
   entrypoint {
-    shell = "gunicorn -b :$PORT main:app"
+	shell = "gunicorn -b :$PORT main:app"
   }
 
   deployment {
-    files {
-      name = "main.py"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
-    }
+	files {
+	  name = "main.py"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+	}
 
-    files {
-      name = "requirements.txt"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
-    }
+	files {
+	  name = "requirements.txt"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+	}
 
-    files {
-      name = "app.yaml"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.yaml.name}"
-    }
+	files {
+	  name = "app.yaml"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.yaml.name}"
+	}
   }
 
   liveness_check {
-    path = "alive"
+	path = "alive"
   }
 
   readiness_check {
-    path = "ready"
+	path = "ready"
   }
 
   env_variables = {
-    port = "8000"
+	port = "8000"
   }
 
   network {
-    name       = "default"
-    subnetwork = "default"
+	name       = "default"
+	subnetwork = "default"
   }
 
   instance_class = "B1"
 
   manual_scaling {
-    instances = 1
+	instances = 1
   }
 
   delete_service_on_destroy = true
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "%s-bucket"
+  name = "%{service}-bucket"
 }
 
 resource "google_storage_bucket_object" "yaml" {
@@ -127,11 +138,18 @@ resource "google_storage_bucket_object" "main" {
   name   = "main.py"
   bucket = google_storage_bucket.bucket.name
   source = "./test-fixtures/appengine/hello-world-flask/main.py"
-}`, resourceName, resourceName)
+}`, context)
 }
 
-func testAccAppEngineFlexibleAppVersion_pythonUpdate(resourceName string) string {
-	return fmt.Sprintf(`
+func testAccAppEngineFlexibleAppVersion_pythonUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_project" "my_project" {
+  name = "tf-test-appeng-flex%{random_suffix}"
+  project_id = "tf-test-appeng-flex%{random_suffix}"
+  org_id = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
 resource "google_project_service" "project" {
   service = "appengineflex.googleapis.com"
 
@@ -140,66 +158,66 @@ resource "google_project_service" "project" {
 
 resource "google_app_engine_flexible_app_version" "foo" {
   version_id = "v1"
-  service    = "%s"
+  service    = "%{service}"
   runtime    = "python"
 
   runtime_api_version = "1"
 
   resources {
-    cpu       = 1
-    memory_gb = 1
-    disk_gb   = 10
+	cpu       = 1
+	memory_gb = 1
+	disk_gb   = 10
   }
 
   entrypoint {
-    shell = "gunicorn -b :$PORT main:app"
+	shell = "gunicorn -b :$PORT main:app"
   }
 
   deployment {
-    files {
-      name = "main.py"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
-    }
+	files {
+	  name = "main.py"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+	}
 
-    files {
-      name = "requirements.txt"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
-    }
+	files {
+	  name = "requirements.txt"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+	}
 
-    files {
-      name = "app.yaml"
-      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.yaml.name}"
-    }
+	files {
+	  name = "app.yaml"
+	  source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.yaml.name}"
+	}
   }
 
   liveness_check {
-    path = ""
+	path = ""
   }
 
   readiness_check {
-    path = ""
+	path = ""
   }
 
   env_variables = {
-    port = "8000"
+	port = "8000"
   }
 
   network {
-    name       = "default"
-    subnetwork = "default"
+	name       = "default"
+	subnetwork = "default"
   }
 
   instance_class = "B2"
 
   manual_scaling {
-    instances = 2
+	instances = 2
   }
 
   delete_service_on_destroy = true
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "%s-bucket"
+  name = "%{service}-bucket"
 }
 
 resource "google_storage_bucket_object" "yaml" {
@@ -218,5 +236,5 @@ resource "google_storage_bucket_object" "main" {
   name   = "main.py"
   bucket = google_storage_bucket.bucket.name
   source = "./test-fixtures/appengine/hello-world-flask/main.py"
-}`, resourceName, resourceName)
+}`, context)
 }

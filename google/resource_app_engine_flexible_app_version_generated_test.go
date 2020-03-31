@@ -28,7 +28,9 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"org_id":          getTestOrgFromEnv(t),
+		"billing_account": getTestBillingAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(10),
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -51,7 +53,15 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 
 func testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_project" "my_project" {
+  name = "tf-test-appeng-flex%{random_suffix}"
+  project_id = "tf-test-appeng-flex%{random_suffix}"
+  org_id = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
 resource "google_project_service" "service" {
+  project = google_project.my_project.id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
@@ -59,6 +69,7 @@ resource "google_project_service" "service" {
 
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
+  project    = google_project.my_project.id
   service    = "tf-test-service-%{random_suffix}"
   runtime    = "nodejs"
 
@@ -95,6 +106,7 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
+  project = google_project.my_project.id
   name = "tf-test-appengine-static-content%{random_suffix}"
 }
 

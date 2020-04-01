@@ -53,12 +53,6 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_project_iam_member" "gae_api" {
-  project = google_project.my_project.project_id
-  role    = "roles/compute.networkUser"
-  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
-}
-
 resource "google_app_engine_application" "app" {
   project     = google_project.my_project.project_id
   location_id = "us-central"
@@ -69,6 +63,12 @@ resource "google_project_service" "project" {
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_project_service.project.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {
@@ -165,12 +165,6 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_project_iam_member" "gae_api" {
-  project = google_project.my_project.project_id
-  role    = "roles/compute.networkUser"
-  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
-}
-
 resource "google_app_engine_application" "app" {
   project     = google_project.my_project.project_id
   location_id = "us-central"
@@ -181,6 +175,12 @@ resource "google_project_service" "project" {
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_project_service.project.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {

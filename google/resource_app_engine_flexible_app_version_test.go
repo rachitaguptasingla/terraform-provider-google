@@ -53,13 +53,13 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_project_iam_member" "project" {
+resource "google_project_iam_member" "cloudservices" {
   project = google_project.my_project.project_id
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:${google_project.my_project.number}@cloudservices.gserviceaccount.com"
 }
 
-resource "google_project_iam_member" "project" {
+resource "google_project_iam_member" "gae_api" {
   project = google_project.my_project.project_id
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
@@ -80,7 +80,7 @@ resource "google_project_service" "project" {
 resource "google_app_engine_flexible_app_version" "foo" {
   project    = google_app_engine_application.app.id
   version_id = "v1"
-  service    = "%{service}"
+  service    = "%{service_name}"
   runtime    = "python"
 
   runtime_api_version = "1"
@@ -140,7 +140,7 @@ resource "google_app_engine_flexible_app_version" "foo" {
 
 resource "google_storage_bucket" "bucket" {
   project = google_project.my_project.project_id
-  name = "%{service}-bucket"
+  name = "%{service_name}-bucket"
 }
 
 resource "google_storage_bucket_object" "yaml" {
@@ -171,13 +171,13 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_project_iam_member" "project" {
+resource "google_project_iam_member" "cloudservices" {
   project = google_project.my_project.project_id
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:${google_project.my_project.number}@cloudservices.gserviceaccount.com"
 }
 
-resource "google_project_iam_member" "project" {
+resource "google_project_iam_member" "gae_api" {
   project = google_project.my_project.project_id
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
@@ -198,7 +198,7 @@ resource "google_project_service" "project" {
 resource "google_app_engine_flexible_app_version" "foo" {
   project    = google_app_engine_application.app.id
   version_id = "v1"
-  service    = "%{service}"
+  service    = "%{service_name}"
   runtime    = "python"
 
   runtime_api_version = "1"
@@ -258,7 +258,7 @@ resource "google_app_engine_flexible_app_version" "foo" {
 
 resource "google_storage_bucket" "bucket" {
   project = google_project.my_project.project_id
-  name = "%{service}-bucket"
+  name = "%{service_name}-bucket"
 }
 
 resource "google_storage_bucket_object" "yaml" {

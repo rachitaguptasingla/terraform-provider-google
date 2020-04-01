@@ -72,6 +72,18 @@ resource "google_project_service" "service" {
   disable_dependent_services = false
 }
 
+resource "google_project_iam_member" "project" {
+  project = google_project.my_project.project_id
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_project.my_project.number}@cloudservices.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "project" {
+  project = google_project.my_project.project_id
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
+}
+
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
   project    = google_app_engine_application.app.id

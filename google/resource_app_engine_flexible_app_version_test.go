@@ -53,12 +53,6 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_project_iam_member" "cloudservices" {
-  project = google_project.my_project.project_id
-  role    = "roles/compute.networkUser"
-  member  = "serviceAccount:${google_project.my_project.number}@cloudservices.gserviceaccount.com"
-}
-
 resource "google_project_iam_member" "gae_api" {
   project = google_project.my_project.project_id
   role    = "roles/compute.networkUser"
@@ -169,12 +163,6 @@ resource "google_project" "my_project" {
   project_id = "tf-test-appeng-flex%{random_suffix}"
   org_id = "%{org_id}"
   billing_account = "%{billing_account}"
-}
-
-resource "google_project_iam_member" "cloudservices" {
-  project = google_project.my_project.project_id
-  role    = "roles/compute.networkUser"
-  member  = "serviceAccount:${google_project.my_project.number}@cloudservices.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "gae_api" {

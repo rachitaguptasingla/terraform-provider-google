@@ -52,6 +52,11 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
+resource "google_app_engine_application" "app" {
+  project     = google_project.my_project.project_id
+  location_id = "us-central"
+}
+
 resource "google_project_service" "project" {
   project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
@@ -60,7 +65,7 @@ resource "google_project_service" "project" {
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {
-  project = google_project.my_project.project_id
+  project    = google_app_engine_application.app.id
   version_id = "v1"
   service    = "%{service}"
   runtime    = "python"
@@ -153,6 +158,11 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
+resource "google_app_engine_application" "app" {
+  project     = google_project.my_project.project_id
+  location_id = "us-central"
+}
+
 resource "google_project_service" "project" {
   project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
@@ -161,7 +171,7 @@ resource "google_project_service" "project" {
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {
-  project = google_project.my_project.project_id
+  project    = google_app_engine_application.app.id
   version_id = "v1"
   service    = "%{service}"
   runtime    = "python"

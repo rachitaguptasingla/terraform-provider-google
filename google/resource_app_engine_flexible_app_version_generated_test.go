@@ -61,7 +61,7 @@ resource "google_project" "my_project" {
 }
 
 resource "google_project_service" "service" {
-  project = google_project.my_project.id
+  project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
@@ -69,7 +69,7 @@ resource "google_project_service" "service" {
 
 resource "google_app_engine_flexible_app_version" "myapp_v1" {
   version_id = "v1"
-  project    = google_project.my_project.id
+  project    = google_project.my_project.project_id
   service    = "tf-test-service-%{random_suffix}"
   runtime    = "nodejs"
 
@@ -106,7 +106,7 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.id
+  project = google_project.my_project.project_id
   name = "tf-test-appengine-static-content%{random_suffix}"
 }
 

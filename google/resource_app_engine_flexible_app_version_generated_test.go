@@ -73,7 +73,7 @@ resource "google_project_service" "service" {
 }
 
 resource "google_project_iam_member" "gae_api" {
-  project = google_project_service.project.project
+  project = google_project_service.service.project
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
 }
